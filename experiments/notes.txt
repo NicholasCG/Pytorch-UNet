@@ -1,0 +1,22 @@
+Glare iamge 1:
+The added weight technique seems to work best to create a natural image. 
+Notable issues are that is doesn't create a concentrated region of brightness, but rather an expanding blob.
+There is also the issue that it brightens the entire screen.
+
+Glare image 2:
+Added weight techniques overly brightens the image, do not use this technique.
+The transparency layering technique seems to have some promise. The rays are concerning, 
+but something that can possible be kept in. Maybe don't do the resizing operation?
+
+Glare image 3:
+Same with glare image 2, except the two small dots are annoying -_-.
+The rays are extra big on this one, which may cause training issues later.
+
+For glare 2 and 3, using warp affine produces images of better quality in my opinion, even better than with added
+weight tehcnique with glare image 1. Will create a training set using all three images, and try to get in contact
+with Miche to get her opinion.
+
+Glare image 4:
+Add weight technique only excessively brightens the image, does not actually create a good spot of sunglare.
+For transparency layering technique, the resizing operation leads to a sizing issue. The sun glare is too big and does
+not lead to a natural looking image. Do not use this sun glare.

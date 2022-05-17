@@ -21,27 +21,32 @@ def predict_img(net,
     img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor, is_mask=False))
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
-
+    print(img * 255)
     with torch.no_grad():
         output = net(img)
+        # print(img.shape)
+        # print(output.shape)
+        # if net.n_classes > 1:
+        #     probs = F.softmax(output, dim=1)[0]
+        # else:
+        #     probs = torch.sigmoid(output)[0]
+        # tf = transforms.Compose([
+        #     transforms.ToPILImage(),
+        #     transforms.Resize((full_img.size[1], full_img.size[0])),
+        #     transforms.ToTensor()
+        # ])
 
-        if net.n_classes > 1:
-            probs = F.softmax(output, dim=1)[0]
-        else:
-            probs = torch.sigmoid(output)[0]
+        full_mask = output[0].float().cpu().permute(1, 2, 0)
+        print(full_mask)
+    #     print(full_mask.permute(1, 2, 0).shape)
 
-        tf = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((full_img.size[1], full_img.size[0])),
-            transforms.ToTensor()
-        ])
-
-        full_mask = tf(probs.cpu()).squeeze()
-
-    if net.n_classes == 1:
-        return (full_mask > out_threshold).numpy()
-    else:
-        return F.one_hot(full_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
+    # print(full_mask.permute(1, 2, 0).numpy())
+    return full_mask.numpy()
+    # if net.n_classes == 1:
+    #     # return (full_mask > out_threshold).numpy()
+    #     return full_mask.numpy()
+    # else:
+    #     return F.one_hot(full_mask.argmax(dim=0), net.n_classes).permute(2, 0, 1).numpy()
 
 
 def get_args():
@@ -71,10 +76,12 @@ def get_output_filenames(args):
 
 
 def mask_to_image(mask: np.ndarray):
-    if mask.ndim == 2:
-        return Image.fromarray((mask * 255).astype(np.uint8))
-    elif mask.ndim == 3:
-        return Image.fromarray((np.argmax(mask, axis=0) * 255 / mask.shape[0]).astype(np.uint8))
+    print(f"ndim of mask: {mask.ndim}")
+    return Image.fromarray((mask * 255).astype(np.uint8))
+    # if mask.ndim == 2:
+    #     return Image.fromarray((mask * 255).astype(np.uint8))
+    # elif mask.ndim == 3:
+    #     return Image.fromarray((np.argmax(mask, axis=0) * 255 / mask.shape[0]).astype(np.uint8))
 
 
 if __name__ == '__main__':
@@ -82,7 +89,7 @@ if __name__ == '__main__':
     in_files = args.input
     out_files = get_output_filenames(args)
 
-    net = UNet(n_channels=3, n_classes=2, bilinear=args.bilinear)
+    net = UNet(n_channels=3, n_classes=3, bilinear=args.bilinear)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Loading model {args.model}')
